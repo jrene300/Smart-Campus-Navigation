@@ -1,0 +1,83 @@
+Design Document - Project 2, Milestone 1
+
+Main classes:
+Utilities:      Small helpers: trim (including \r), uppercase/lowercase,
+                case-insensitive compare, split on '|'.
+DataLoader:     Reads the four files in order, validates each line, prints
+                warnings (file, line number, reason) and one summary per file.
+HashTable:      Our own hash table for facility IDs.
+FacilityStore:  Keeps facilities in file order and owns the HashTable.
+CampusGraph:    Buildings and walkways, plus BFS.
+DepartmentTree: General tree of departments.
+main.cpp:       Starts the program, loads data, runs the menu.
+
+
+Hash Table:
+Hash function
+  The ID is trimmed and made uppercase first. Then, for each character c:
+      h = (h * 31 + c) modify capacity
+  The final h is the bucket number.
+
+Collision strategy: separate chaining
+  Each bucket is a list of facilities, so a bucket can hold many entries.
+  It allows 
+    - No limit on the number of facilities.
+    - Simple to implement correctly.
+    - A lookup only checks one bucket.
+
+What counts as a collision
+  An accepted insertion into a bucket that already has an entry.
+  Rejected duplicate IDs are not counted.
+
+Capacity and full table
+  Capacity starts at 11 (constant HashTable::DEFAULT_CAPACITY).
+  With chaining the table never fills up, so nothing is rejected for space.
+  Resizing is not implemented.
+
+Duplicates and search
+  - A duplicate ID (any capitalization) is rejected; the first record stays.
+  - ID search normalizes the input, checks the format, then looks in one bucket only. It never scans all facilities.
+  - Outcomes: invalid format, valid but not found, or found.
+
+Diagnostic
+  The facilities load summary prints capacity, entries, and collisions.
+  testdata/collision (F001, F013, F025) shows collisions.
+
+
+Campus Graph:
+Representation: adjacency list
+  - names_: building names in file order.
+  - adj_  : for each building, a list of neighbor indexes in the order the connections were added.
+  - Each connection is stored at both buildings but counted once.
+
+Why an adjacency list:
+  The campus graph is sparse, it grows as needed, and it keeps neighbor
+  order, which BFS depends on.
+
+Rules enforced:
+  Self-connections and duplicate or reversed connections are rejected.
+  Building names match ignoring case and outer whitespace.
+
+BFS:
+  Uses a queue and a visited list. A building is marked visited when it is
+  added to the queue. Output is each building with its distance, then
+  "Reachable: k of N". An unknown start gives an error; an isolated start
+  shows only itself.
+
+
+Department Tree:
+Structure:
+  Each node stores its name, its parent, and a list of children. A node can have any number of children. Siblings stay in insertion order.
+
+Rules:
+  - The first department is the root and must use NONE as parent.
+  - Every later department needs a parent added earlier.
+  - Duplicate names (ignoring case) are rejected.
+  - Menu "Add department": if the tree is empty, the new department becomes the root with no parent prompt; otherwise, an existing parent is required.
+  - Menu additions exist in memory only.
+
+Operations
+  - Search shows name, parent, number of children, depth.
+  - Hierarchy display: preorder, 4 spaces of indentation per depth level.
+  - Preorder option: same order, printed as one sequence with no indentation.
+  - The destructor deletes every node.
