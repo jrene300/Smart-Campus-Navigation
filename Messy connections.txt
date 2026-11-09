@@ -1,0 +1,6 @@
+Library|Student Union
+student union|LIBRARY
+Gym|Gym
+Gym|Nowhere
+Library|Gym|Extra
+ Library | Gym 

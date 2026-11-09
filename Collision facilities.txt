@@ -1,0 +1,4 @@
+F001|Alpha|Library|Lab
+F013|Beta|Library|Lab
+F025|Gamma|Gym|Lab
+f013|Duplicate Beta|Library|Lab

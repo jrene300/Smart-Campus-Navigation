@@ -1,0 +1,7 @@
+f004|Room #5| Library |Classroom
+F004|Dup|Gym|Lab
+F5|Bad|Gym|Lab
+F006||Gym|Lab
+F007|X|Nowhere|Lab
+F008|Y|Gym|classroom
+F009|Z|Gym|CLASSROOM

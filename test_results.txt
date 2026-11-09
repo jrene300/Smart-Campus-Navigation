@@ -1,0 +1,157 @@
+TEST RESULTS - Project 2: Smart Campus Navigation and Facility Analytics System
+
+How we tested:
+  Build:  g++ -std=c++11 -Iinclude src/*.cpp -o campus
+  M1 build (10-option menu):  g++ -std=c++11 -DMILESTONE1 -Iinclude src/*.cpp -o campus
+  Run:    ./campus            (uses data/)
+          ./campus testdata/collision   (uses our own test folder)
+  Menu numbers below are from the Final menu.
+
+NOTE: These results were run on a Linux machine. We still need to
+re-run everything on the CELL machines and update this file.
+
+Each test: number, description, input, expected, actual, pass/fail
+
+-----------------------------------------------------------------
+FILE LOADING
+-----------------------------------------------------------------
+
+Test 1 - Load the sample files
+  Input:    data/
+  Expected: 7 / 6 / 10 / 7 accepted, 0 rejected
+  Actual:   7 / 6 / 10 / 7 accepted, 0 rejected. Hash capacity 11,
+            entries 10, collisions 1.
+  Result:   PASS
+
+Test 2 - Bad records, Windows line endings, spaces, lowercase ID, # in name
+  Input:    testdata/messy
+  Expected: Warning with file, line number and reason for each bad line.
+            f004 is stored as F004. "Room #5" keeps its #.
+  Actual:   All of these were rejected with a warning: duplicate building,
+            duplicate / reversed / self / unknown / 3-field connection,
+            bad ID, empty field, unknown building, duplicate department,
+            unknown parent. f004 stored as F004 and "Room #5" kept.
+  Result:   PASS
+
+Test 3 - Missing files
+  Input:    testdata/missing
+  Expected: Error for each file, no crash, empty messages in the menu.
+  Actual:   Error printed for each file and the program kept running.
+  Result:   PASS
+
+Test 4 - Empty files
+  Input:    testdata/empty
+  Expected: 0 accepted for every file, empty messages, tree stats 0 / 0 / N/A.
+  Actual:   Same as expected.
+  Result:   PASS
+
+-----------------------------------------------------------------
+HASH TABLE AND SEARCH
+-----------------------------------------------------------------
+
+Test 5 - Search by ID
+  Input:    F004, f004, 004, F999
+  Expected: Found, found, invalid format message, not found (shows F999).
+  Actual:   Same as expected.
+  Result:   PASS
+
+Test 6 - Hash collision and duplicate key
+  Input:    testdata/collision (F001, F013, F025 land in the same bucket,
+            and f013 is a duplicate)
+  Expected: Collisions = 2. The duplicate is rejected and does not
+            change the collision count.
+  Actual:   "3 accepted, 1 rejected (capacity 11, entries 3, collisions 2)"
+  Result:   PASS
+
+Test 7 - Search by name and by category
+  Input:    "room 101", " classroom "
+  Expected: 2 matches for the name, 3 matches for the category (ignores
+            capital letters and outer spaces).
+  Actual:   Same as expected.
+  Result:   PASS
+
+-----------------------------------------------------------------
+GRAPH AND BFS
+-----------------------------------------------------------------
+
+Test 8 - BFS reachability
+  Input:    Library, Observatory, Nowhere
+  Expected: Library: 6 of 7 in the right order with distances.
+            Observatory: 1 of 7. Nowhere: error message.
+  Actual:   Same as expected (matches the example in the project
+            description).
+  Result:   PASS
+
+Test 9 - Shortest path
+  Input:    Library to Gym, Library to Library, Library to Observatory,
+            Library to Zzz
+  Expected: Through Student Union (2 connections), 0 connections,
+            no path, unknown building named.
+  Actual:   Same as expected.
+  Result:   PASS
+
+Test 10 - Tie path in our own data
+  Input:    testdata/tie, A to D
+  Expected: A, B, D
+  Actual:   A, B, D
+  Result:   PASS
+
+-----------------------------------------------------------------
+DEPARTMENT TREE
+-----------------------------------------------------------------
+
+Test 11 - Hierarchy, traversals and statistics
+  Input:    sample data
+  Expected: Matches the example in the project description. Total 7,
+            leaves 4, height 2.
+  Actual:   Same as expected.
+  Result:   PASS
+
+Test 12 - Empty tree, root-only tree, duplicate, unknown parent
+  Input:    testdata/empty (add "Root Dept"), then testdata/tie
+  Expected: Root added without asking for a parent. Duplicate and unknown
+            parent are rejected. Root-only stats: 1 / 1 / 0.
+  Actual:   Root added with no parent prompt. Stats were 1 / 1 / 0.
+            Duplicate and unknown parent were rejected.
+  Result:   PASS
+
+Test 13 - Search department
+  Input:    University, Physics, nope
+  Expected: University: parent None, depth 0. Physics: depth 2.
+            nope: not found.
+  Actual:   Same as expected.
+  Result:   PASS
+
+-----------------------------------------------------------------
+REPORTS AND MENU
+-----------------------------------------------------------------
+
+Test 14 - Category and connectivity reports
+  Input:    sample, messy, tie, empty
+  Expected: Report matches the example. Tie data lists A, B, C, D as the
+            highest degree. Empty data does not crash.
+  Actual:   Same as expected. Tie data shows 1 connected component.
+  Result:   PASS
+
+Test 15 - Bad menu input
+  Input:    "abc", a blank line, 99, 0
+  Expected: Error message and the menu comes back. 0 exits.
+  Actual:   Same as expected.
+  Result:   PASS
+
+Test 16 - Milestone 1 menu
+  Input:    M1 build (-DMILESTONE1)
+  Expected: 10 options numbered like Section 6.9.
+  Actual:   Same as expected.
+  Result:   PASS
+
+-----------------------------------------------------------------
+MEMORY
+-----------------------------------------------------------------
+
+Test 17 - Memory check
+  Input:    Run with AddressSanitizer, including adding a department
+  Expected: No leaks or memory errors.
+  Actual:   Exit code 0 and no reports. Valgrind was not available on
+            this machine.
+  Result:   PASS (we will try Valgrind on CELL if it is there)
